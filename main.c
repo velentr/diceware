@@ -6,7 +6,7 @@
  * \author Brian Kubisiak
  */
 
-#include <errno.h>
+#include <err.h>
 #include <getopt.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -15,7 +15,7 @@
 
 #include "diceware.h"
 
-#define USAGE_STRING "usage: %s [-d <dbfile>] [-n <num>] [-w <wordlist>]\n"
+#define USAGE_STRING "usage: %s [-d <dbfile>] [-n <num>] [-w <wordlist>]"
 
 int main(int argc, char *argv[])
 {
@@ -57,8 +57,7 @@ int main(int argc, char *argv[])
             len = strtoul(optarg, &endptr, 10);
             if (*endptr != '\0')
             {
-                fprintf(stderr, USAGE_STRING, argv[0]);
-                return EXIT_FAILURE;
+                errx(EXIT_FAILURE, USAGE_STRING, argv[0]);
             }
             break;
         /* Set the path to the wordlist for setting up a new database. */
@@ -66,8 +65,7 @@ int main(int argc, char *argv[])
             word_file = optarg;
             break;
         default:
-            fprintf(stderr, USAGE_STRING, argv[0]);
-            return EXIT_FAILURE;
+            errx(EXIT_FAILURE, USAGE_STRING, argv[0]);
             break;
         }
     }

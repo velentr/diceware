@@ -30,7 +30,7 @@
  */
 
 #include <assert.h>
-#include <errno.h>
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -78,7 +78,7 @@ static int _dw_get_word(struct diceware *dw, unsigned idx, char *out,
         rc = sqlite3_prepare_v2(dw->db, GET_WORD, -1, &dw->query, NULL);
         if (rc != SQLITE_OK)
         {
-            fprintf(stderr, "sqlite3_prepare_v2(%s): %s\n", GET_WORD,
+            warnx("sqlite3_prepare_v2(%s): %s", GET_WORD,
                     sqlite3_errmsg(dw->db));
             return -1;
         }
@@ -91,7 +91,7 @@ static int _dw_get_word(struct diceware *dw, unsigned idx, char *out,
     rc = sqlite3_bind_int(dw->query, 1, idx);
     if (rc != SQLITE_OK)
     {
-        fprintf(stderr, "sqlite3_bind_int: %s\n", sqlite3_errstr(rc));
+        warnx("sqlite3_bind_int: %s", sqlite3_errstr(rc));
         return -1;
     }
 
@@ -104,12 +104,11 @@ static int _dw_get_word(struct diceware *dw, unsigned idx, char *out,
     {
         if (rc == SQLITE_DONE)
         {
-            fprintf(stderr, "incomplete database\n");
+            warnx("incomplete database");
         }
         else
         {
-            fprintf(stderr, "sqlite3_step(%s): %s\n", GET_WORD,
-                    sqlite3_errmsg(dw->db));
+            warnx("sqlite3_step(%s): %s", GET_WORD, sqlite3_errmsg(dw->db));
         }
         return -1;
     }
@@ -117,8 +116,7 @@ static int _dw_get_word(struct diceware *dw, unsigned idx, char *out,
     word = (const char *)sqlite3_column_text(dw->query, 0);
     if (word == NULL)
     {
-        fprintf(stderr, "sqlite3_column_text(%s): %s\n", GET_WORD,
-                sqlite3_errmsg(dw->db));
+        warnx("sqlite3_column_text(%s): %s", GET_WORD, sqlite3_errmsg(dw->db));
         return -1;
     }
 
@@ -136,7 +134,7 @@ static int _dw_insert(struct diceware *dw, int index, const char *word)
         rc = sqlite3_prepare_v2(dw->db, INSERT_WORD, -1, &dw->insert, NULL);
         if (rc != SQLITE_OK)
         {
-            fprintf(stderr, "sqlite3_prepare_v2(%s): %s\n", INSERT_WORD,
+            warnx("sqlite3_prepare_v2(%s): %s", INSERT_WORD,
                     sqlite3_errmsg(dw->db));
             return -1;
         }
@@ -149,14 +147,14 @@ static int _dw_insert(struct diceware *dw, int index, const char *word)
     rc = sqlite3_bind_int(dw->insert, 1, index);
     if (rc != SQLITE_OK)
     {
-        fprintf(stderr, "sqlite3_bind_int: %s\n", sqlite3_errstr(rc));
+        warnx("sqlite3_bind_int: %s", sqlite3_errstr(rc));
         return -1;
     }
 
     rc = sqlite3_bind_text(dw->insert, 2, word, -1, SQLITE_STATIC);
     if (rc != SQLITE_OK)
     {
-        fprintf(stderr, "sqlite3_bind_text: %s\n", sqlite3_errstr(rc));
+        warnx("sqlite3_bind_text: %s", sqlite3_errstr(rc));
         return -1;
     }
 
@@ -167,8 +165,7 @@ static int _dw_insert(struct diceware *dw, int index, const char *word)
 
     if (rc != SQLITE_DONE)
     {
-        fprintf(stderr, "sqlite3_step(%s): %s\n", GET_WORD,
-                sqlite3_errmsg(dw->db));
+        warnx("sqlite3_step(%s): %s", GET_WORD, sqlite3_errmsg(dw->db));
         return -1;
     }
 
@@ -186,7 +183,7 @@ static int _dw_populate(struct diceware *dw, const char *path)
     input = fopen(path, "r");
     if (input == NULL)
     {
-        fprintf(stderr, "fopen(%s): %s\n", path, strerror(errno));
+        warn("fopen(%s)", path);
         return -1;
     }
 
@@ -220,15 +217,15 @@ static int _dw_populate(struct diceware *dw, const char *path)
         /* Figure out which error occurred and log the appropriate message. */
         if (ferror(input))
         {
-            fprintf(stderr, "fscanf(%s): %s\n", path, strerror(errno));
+            warn("fscanf(%s)", path);
         }
         else if (feof(input))
         {
-            fprintf(stderr, "too few diceware entries: %s\n", path);
+            warnx("too few diceware entries: %s", path);
         }
         else
         {
-            fprintf(stderr, "invalid diceware file: %s\n", path);
+            warnx("invalid diceware file: %s", path);
         }
 
         return -1;
@@ -268,7 +265,7 @@ int dw_create(struct diceware *dw, const char *db_path, const char *word_path)
     rc = sqlite3_exec(dw->db, BEGIN_TRANSACTION, NULL, NULL, &errmsg);
     if (rc != SQLITE_OK)
     {
-        fprintf(stderr, "sqlite3_exec(%s): %s\n", BEGIN_TRANSACTION, errmsg);
+        warnx("sqlite3_exec(%s): %s", BEGIN_TRANSACTION, errmsg);
         sqlite3_free(errmsg);
         return -1;
     }
@@ -276,7 +273,7 @@ int dw_create(struct diceware *dw, const char *db_path, const char *word_path)
     rc = sqlite3_exec(dw->db, CREATE_TABLES, NULL, NULL, &errmsg);
     if (rc != SQLITE_OK)
     {
-        fprintf(stderr, "sqlite3_exec(%s): %s\n", CREATE_TABLES, errmsg);
+        warnx("sqlite3_exec(%s): %s", CREATE_TABLES, errmsg);
         sqlite3_free(errmsg);
         dw_close(dw);
         return -1;
@@ -294,7 +291,7 @@ int dw_create(struct diceware *dw, const char *db_path, const char *word_path)
         /* Rollback failed; something has gone horribly wrong. */
         if (rc != SQLITE_OK)
         {
-            fprintf(stderr, "sqlite3_exec(%s): %s\n", UNDO_TRANSACTION, errmsg);
+            warnx("sqlite3_exec(%s): %s", UNDO_TRANSACTION, errmsg);
             sqlite3_free(errmsg);
             return -1;
         }
@@ -315,7 +312,7 @@ int dw_create(struct diceware *dw, const char *db_path, const char *word_path)
          * it. */
         if (rc != SQLITE_OK)
         {
-            fprintf(stderr, "sqlite3_exec(%s): %s\n", END_TRANSACTION, errmsg);
+            warnx("sqlite3_exec(%s): %s", END_TRANSACTION, errmsg);
             sqlite3_free(errmsg);
 
             dw_close(dw);
@@ -334,7 +331,7 @@ int dw_open(struct diceware *dw, const char *path)
     rc = sqlite3_open(path, &db);
     if (rc != SQLITE_OK)
     {
-        fprintf(stderr, "sqlite3_open(%s): %s\n", path, sqlite3_errmsg(db));
+        warnx("sqlite3_open(%s): %s", path, sqlite3_errmsg(db));
         return -1;
     }
 
@@ -391,7 +388,7 @@ int dw_generate(struct diceware *dw, FILE *output, size_t nwords)
         rc = fprintf(output, "%s ", word);
         if (rc < 0)
         {
-            fprintf(stderr, "fprintf: %s\n", strerror(errno));
+            warn("fprintf");
             return -1;
         }
     }
@@ -399,7 +396,7 @@ int dw_generate(struct diceware *dw, FILE *output, size_t nwords)
     rc = fprintf(output, "\n");
     if (rc < 0)
     {
-        fprintf(stderr, "fprintf: %s\n", strerror(errno));
+        warn("fprintf");
         return -1;
     }
 
