@@ -235,8 +235,6 @@ static int _dw_populate(struct diceware *dw, const char *path)
 
 void dw_close(struct diceware *dw)
 {
-    sqlite3_close(dw->db);
-
     if (dw->insert != NULL)
     {
         sqlite3_finalize(dw->insert);
@@ -246,6 +244,8 @@ void dw_close(struct diceware *dw)
     {
         sqlite3_finalize(dw->query);
     }
+
+    sqlite3_close(dw->db);
 }
 
 int dw_create(struct diceware *dw, const char *db_path, const char *word_path)

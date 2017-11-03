@@ -84,15 +84,20 @@ int main(int argc, char *argv[])
 
     if (rc < 0)
     {
-        return EXIT_FAILURE;
+        rc = EXIT_FAILURE;
+        goto main_exit;
     }
 
     rc = dw_generate(&dw, stdout, len);
     if (rc < 0)
     {
-        return EXIT_FAILURE;
+        rc = EXIT_FAILURE;
+        goto main_cleanup;
     }
 
+main_cleanup:
+    dw_close(&dw);
+main_exit:
     return EXIT_SUCCESS;
 }
 
