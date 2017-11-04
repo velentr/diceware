@@ -1,5 +1,8 @@
 *.o
 *.swp
-.sconsign.dblite
 diceware
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake*
 
