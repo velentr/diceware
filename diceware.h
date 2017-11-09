@@ -9,7 +9,7 @@
 #include <sqlite3.h>
 
 #define DICEWARE_VSN_MAJOR 0
-#define DICEWARE_VSN_MINOR 0
+#define DICEWARE_VSN_MINOR 2
 
 /**
  * Handle for the diceware word database.
