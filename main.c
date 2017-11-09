@@ -15,8 +15,8 @@
 
 #include "diceware.h"
 
-#define USAGE_STRING "usage: %s [-d <dbfile>] [-n <num>] [-v] [-w <wordlist>]"
-#define VSN_STRING   "Diceware v%d.%d, Copyright (C) 2017 Brian Kubisiak"
+#define USAGE_STRING "usage: %s [-d <dbfile>] [-n <num>] [-v] [-w <wordlist>]\n"
+#define VSN_STRING   "Diceware v%d.%d, Copyright (C) 2017 Brian Kubisiak\n"
 
 int main(int argc, char *argv[])
 {
@@ -58,20 +58,22 @@ int main(int argc, char *argv[])
             len = strtoul(optarg, &endptr, 10);
             if (*endptr != '\0')
             {
-                errx(EXIT_FAILURE, USAGE_STRING, argv[0]);
+                fprintf(stderr, USAGE_STRING, argv[0]);
+		exit(EXIT_FAILURE);
             }
             break;
         /* Print version info and exit. */
         case 'v':
-            errx(EXIT_SUCCESS, VSN_STRING, DICEWARE_VSN_MAJOR,
-                    DICEWARE_VSN_MINOR);
+	    fprintf(stderr, VSN_STRING, DICEWARE_VSN_MAJOR, DICEWARE_VSN_MINOR);
+	    exit(EXIT_SUCCESS);
             break;
         /* Set the path to the wordlist for setting up a new database. */
         case 'w':
             word_file = optarg;
             break;
         default:
-            errx(EXIT_FAILURE, USAGE_STRING, argv[0]);
+            fprintf(stderr, USAGE_STRING, argv[0]);
+	    exit(EXIT_FAILURE);
             break;
         }
     }
