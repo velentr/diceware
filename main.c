@@ -15,7 +15,8 @@
 
 #include "diceware.h"
 
-#define USAGE_STRING "usage: %s [-d <dbfile>] [-n <num>] [-v] [-w <wordlist>]\n"
+#define USAGE_STRING \
+	"usage: %s [-d <dbfile>] [-h] [-n <num>] [-v] [-w <wordlist>]\n"
 #define VSN_STRING   "Diceware v%d.%d, Copyright (C) 2017 Brian Kubisiak\n"
 
 int main(int argc, char *argv[])
@@ -45,7 +46,7 @@ int main(int argc, char *argv[])
 
     /* Turn off automatic logging; we will print errors on our own. */
     opterr = 0;
-    while ((arg = getopt(argc, argv, "d:n:vw:")) != -1)
+    while ((arg = getopt(argc, argv, "d:hn:vw:")) != -1)
     {
         switch (arg)
         {
@@ -53,6 +54,11 @@ int main(int argc, char *argv[])
         case 'd':
             db_file = optarg;
             break;
+	/* Print usage message and exit. */
+	case 'h':
+	    fprintf(stderr, USAGE_STRING, argv[0]);
+	    exit(EXIT_SUCCESS);
+	    break;
         /* Set the number of words to use in the passphrase. */
         case 'n':
             len = strtoul(optarg, &endptr, 10);
