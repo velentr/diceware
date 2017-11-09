@@ -6,10 +6,11 @@ list.
 ## Build
 
 SQLite and libbsd are required to build on Linux. Once the dependencies are
-installed, build using `scons`:
+installed, build using `cmake`:
 
 ```
-$ scons diceware
+$ cmake .
+$ make
 ```
 
 ## Usage
